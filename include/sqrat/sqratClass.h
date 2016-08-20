@@ -100,15 +100,15 @@ public:
 
             ClassData<C>* cd = *ud;
 
-            if (ClassType<C>::getStaticClassData().Expired()) {
-                cd->staticData.Init(new StaticClassData<C, void>);
+            if (ClassType<C>::getStaticClassData().expired()) {
+                cd->staticData = SharedPtr<StaticClassData<C, void>>(new StaticClassData<C, void>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
                 cd->staticData->baseClass = NULL;
 
                 ClassType<C>::getStaticClassData() = cd->staticData;
             } else {
-                cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                cd->staticData = ClassType<C>::getStaticClassData().lock();
             }
 
             HSQOBJECT& classObj = cd->classObj;
@@ -578,13 +578,13 @@ protected:
 
     // Initialize the required data structure for the class
     void InitClass(ClassData<C>* cd) {
-        cd->instances.Init(new typename unordered_map<C*, HSQOBJECT>::type);
+        cd->instances = SharedPtr<typename unordered_map<C*, HSQOBJECT>::type>(new typename unordered_map<C*, HSQOBJECT>::type);
 
         // push the class
         sq_pushobject(vm, cd->classObj);
 
         // set the typetag of the class
-        sq_settypetag(vm, -1, cd->staticData.Get());
+        sq_settypetag(vm, -1, cd->staticData.get());
 
         // add the default constructor
         sq_pushstring(vm, _SC("constructor"), -1);
@@ -949,15 +949,15 @@ public:
             ClassData<B>* bd = ClassType<B>::getClassData(v);
             ClassData<C>* cd = *ud;
 
-            if (ClassType<C>::getStaticClassData().Expired()) {
-                cd->staticData.Init(new StaticClassData<C, B>);
+            if (ClassType<C>::getStaticClassData().expired()) {
+                cd->staticData = SharedPtr<StaticClassData<C, B>>(new StaticClassData<C, B>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
-                cd->staticData->baseClass = bd->staticData.Get();
+                cd->staticData->baseClass = bd->staticData.get();
 
                 ClassType<C>::getStaticClassData() = cd->staticData;
             } else {
-                cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                cd->staticData = ClassType<C>::getStaticClassData().lock();
             }
 
             HSQOBJECT& classObj = cd->classObj;
@@ -977,13 +977,13 @@ protected:
 /// @cond DEV
 
     void InitDerivedClass(HSQUIRRELVM vm, ClassData<C>* cd, ClassData<B>* bd) {
-        cd->instances.Init(new typename unordered_map<C*, HSQOBJECT>::type);
+        cd->instances = SharedPtr<typename unordered_map<C*, HSQOBJECT>::type>(new typename unordered_map<C*, HSQOBJECT>::type);
 
         // push the class
         sq_pushobject(vm, cd->classObj);
 
         // set the typetag of the class
-        sq_settypetag(vm, -1, cd->staticData.Get());
+        sq_settypetag(vm, -1, cd->staticData.get());
 
         // add the default constructor
         sq_pushstring(vm, _SC("constructor"), -1);

@@ -122,7 +122,7 @@ public:
     }
 
     static inline bool hasClassData(HSQUIRRELVM vm) {
-        if (!getStaticClassData().Expired()) {
+        if (!getStaticClassData().expired()) {
             sq_pushregistrytable(vm);
             sq_pushstring(vm, "__classes", -1);
             if (SQ_SUCCEEDED(sq_rawget(vm, -2))) {
@@ -139,18 +139,18 @@ public:
     }
 
     static inline AbstractStaticClassData*& BaseClass() {
-        assert(getStaticClassData().Expired() == false); // fails because called before a Sqrat::Class for this type exists
-        return getStaticClassData().Lock()->baseClass;
+        assert(getStaticClassData().expired() == false); // fails because called before a Sqrat::Class for this type exists
+        return getStaticClassData().lock()->baseClass;
     }
 
     static inline string& ClassName() {
-        assert(getStaticClassData().Expired() == false); // fails because called before a Sqrat::Class for this type exists
-        return getStaticClassData().Lock()->className;
+        assert(getStaticClassData().expired() == false); // fails because called before a Sqrat::Class for this type exists
+        return getStaticClassData().lock()->className;
     }
 
     static inline COPYFUNC& CopyFunc() {
-        assert(getStaticClassData().Expired() == false); // fails because called before a Sqrat::Class for this type exists
-        return getStaticClassData().Lock()->copyFunc;
+        assert(getStaticClassData().expired() == false); // fails because called before a Sqrat::Class for this type exists
+        return getStaticClassData().lock()->copyFunc;
     }
 
     static SQInteger DeleteInstance(SQUserPointer ptr, SQInteger size) {
@@ -204,7 +204,7 @@ public:
                 return NULL;
             }
 
-            classType = getStaticClassData().Lock().Get();
+            classType = getStaticClassData().lock().get();
 
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (SQ_FAILED(sq_getinstanceup(vm, idx, (SQUserPointer*)&instance, classType))) {

@@ -34,6 +34,7 @@
 #include <string.h>
 
 #if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+#include <memory>
 #include <unordered_map>
 #endif
 
@@ -179,11 +180,19 @@ static std::string wstring_to_string(const std::wstring& wstr)
 
 #endif // SQUNICODE
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+template<class T>
+using SharedPtr = std::shared_ptr<T>;
+
+template<class T>
+using WeakPtr = std::weak_ptr<T>;
+#else
 template <class T>
 class SharedPtr;
 
 template <class T>
 class WeakPtr;
+#endif
 
 /// @endcond
 
@@ -471,6 +480,8 @@ inline string LastErrorString(HSQUIRRELVM vm) {
     return string(sqErr);
 }
 
+#if !defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// A smart pointer that retains shared ownership of an object through a pointer (see std::shared_ptr)
 ///
@@ -523,7 +534,7 @@ public:
     m_RefCount        (NULL),
     m_RefCountRefCount(NULL)
     {
-        Init(ptr);
+        init(ptr);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -540,7 +551,7 @@ public:
     m_RefCount        (NULL),
     m_RefCountRefCount(NULL)
     {
-        Init(ptr);
+        init(ptr);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -551,9 +562,9 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SharedPtr(const SharedPtr<T>& copy)
     {
-        if (copy.Get() != NULL)
+        if (copy.get() != NULL)
         {
-            m_Ptr              = copy.Get();
+            m_Ptr              = copy.get();
             m_RefCount         = copy.m_RefCount;
             m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -579,9 +590,9 @@ public:
     template <class U>
     SharedPtr(const SharedPtr<U>& copy)
     {
-        if (copy.Get() != NULL)
+        if (copy.get() != NULL)
         {
-            m_Ptr              = static_cast<T*>(copy.Get());
+            m_Ptr              = static_cast<T*>(copy.get());
             m_RefCount         = copy.m_RefCount;
             m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -630,7 +641,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ~SharedPtr()
     {
-        Reset();
+        reset();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -645,11 +656,11 @@ public:
     {
         if (this != &copy)
         {
-            Reset();
+            reset();
 
-            if (copy.Get() != NULL)
+            if (copy.get() != NULL)
             {
-                m_Ptr              = copy.Get();
+                m_Ptr              = copy.get();
                 m_RefCount         = copy.m_RefCount;
                 m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -674,11 +685,11 @@ public:
     template <class U>
     SharedPtr<T>& operator=(const SharedPtr<U>& copy)
     {
-        Reset();
+        reset();
 
-        if (copy.Get() != NULL)
+        if (copy.get() != NULL)
         {
-            m_Ptr              = static_cast<T*>(copy.Get());
+            m_Ptr              = static_cast<T*>(copy.get());
             m_RefCount         = copy.m_RefCount;
             m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -689,15 +700,16 @@ public:
         return *this;
     }
 
+private:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Sets up a new object to be managed by the SharedPtr
     ///
     /// \param ptr Should be the return value from a call to the new operator
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Init(T* ptr)
+    void init(T* ptr)
     {
-        Reset();
+        reset();
 
         m_Ptr = ptr;
 
@@ -717,9 +729,9 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    void Init(U* ptr)
+    void init(U* ptr)
     {
-        Reset();
+        reset();
 
         m_Ptr = static_cast<T*>(ptr);
 
@@ -730,11 +742,12 @@ public:
         *m_RefCountRefCount = 1;
     }
 
+public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Clears the owned object for this SharedPtr and deletes it if no more SharedPtr link to it
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Reset()
+    void reset()
     {
         if (m_Ptr != NULL)
         {
@@ -907,7 +920,7 @@ public:
     /// \return Pointer to the managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    T* Get() const
+    T* get() const
     {
         return m_Ptr;
     }
@@ -1013,9 +1026,9 @@ public:
     template <class U>
     WeakPtr(const SharedPtr<U>& copy)
     {
-        if (copy.Get() != NULL)
+        if (copy.get() != NULL)
         {
-            m_Ptr              = static_cast<T*>(copy.Get());
+            m_Ptr              = static_cast<T*>(copy.get());
             m_RefCount         = copy.m_RefCount;
             m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -1035,7 +1048,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ~WeakPtr()
     {
-        Reset();
+        reset();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1050,7 +1063,7 @@ public:
     {
         if (this != &copy)
         {
-            Reset();
+            reset();
 
             if (copy.m_Ptr != NULL)
             {
@@ -1078,7 +1091,7 @@ public:
     template <class U>
     WeakPtr<T>& operator=(const WeakPtr<U>& copy)
     {
-        Reset();
+        reset();
 
         if (copy.m_Ptr != NULL)
         {
@@ -1105,11 +1118,11 @@ public:
     template <class U>
     WeakPtr<T>& operator=(const SharedPtr<U>& copy)
     {
-        Reset();
+        reset();
 
-        if (copy.Get() != NULL)
+        if (copy.get() != NULL)
         {
-            m_Ptr              = static_cast<T*>(copy.Get());
+            m_Ptr              = static_cast<T*>(copy.get());
             m_RefCount         = copy.m_RefCount;
             m_RefCountRefCount = copy.m_RefCountRefCount;
 
@@ -1125,7 +1138,7 @@ public:
     /// \return True if the managed object does not exist, false otherwise
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool Expired() const
+    bool expired() const
     {
         return (m_Ptr == NULL || *m_RefCount == 0);
     }
@@ -1136,7 +1149,7 @@ public:
     /// \return A SharedPtr which shares ownership of the managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<T> Lock() const
+    SharedPtr<T> lock() const
     {
         SharedPtr<T> other;
         if (m_Ptr != NULL)
@@ -1155,7 +1168,7 @@ public:
     /// Clears the associated object for this WeakPtr
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Reset()
+    void reset()
     {
         if (m_Ptr != NULL)
         {
@@ -1173,6 +1186,8 @@ public:
         }
     }
 };
+
+#endif // !defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @cond DEV
