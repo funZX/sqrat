@@ -34,7 +34,9 @@
 #endif
 
 #include <squirrel.h>
+#include <sqstdblob.h>
 #include <string>
+#include <vector>
 
 #include "sqratClassType.h"
 #include "sqratUtil.h"
@@ -1007,7 +1009,7 @@ public:
 /// Used to get and push std::vector<char> to and from the stack
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
-struct Var<std::vector<char>> {
+struct Var< std::vector<char> > {
 
     std::vector<char> value; ///< The actual value of get operations
 
@@ -1025,10 +1027,10 @@ struct Var<std::vector<char>> {
 
         if(sz > 0)
         {
-            char *pData = nullptr;
+            char *pData = 0;
 
             if(SQ_SUCCEEDED(sqstd_getblob(vm, idx, reinterpret_cast<
-                SQUserPointer*>(&pData))) && nullptr != pData)
+                SQUserPointer*>(&pData))) && 0 != pData)
             {
                 for(SQInteger i = 0; i < sz; ++i)
                 {
@@ -1048,7 +1050,7 @@ struct Var<std::vector<char>> {
     static void push(HSQUIRRELVM vm, const std::vector<char>& value) {
         SQUserPointer pData = sqstd_createblob(vm, value.size());
 
-        if(nullptr != pData)
+        if(0 != pData)
         {
             memcpy(pData, &value[0], value.size());
         }
@@ -1077,10 +1079,10 @@ struct Var<const std::vector<char>&> {
 
         if(sz > 0)
         {
-            char *pData = nullptr;
+            char *pData = 0;
 
             if(SQ_SUCCEEDED(sqstd_getblob(vm, idx, reinterpret_cast<
-                SQUserPointer*>(&pData))) && nullptr != pData)
+                SQUserPointer*>(&pData))) && 0 != pData)
             {
                 for(SQInteger i = 0; i < sz; ++i)
                 {
@@ -1100,7 +1102,7 @@ struct Var<const std::vector<char>&> {
     static void push(HSQUIRRELVM vm, const std::vector<char>& value) {
         SQUserPointer pData = sqstd_createblob(vm, value.size());
 
-        if(nullptr != pData)
+        if(0 != pData)
         {
             memcpy(pData, &value[0], value.size());
         }

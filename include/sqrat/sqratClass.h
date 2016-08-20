@@ -101,7 +101,7 @@ public:
             ClassData<C>* cd = *ud;
 
             if (ClassType<C>::getStaticClassData().expired()) {
-                cd->staticData = SharedPtr<StaticClassData<C, void>>(new StaticClassData<C, void>);
+                cd->staticData = SharedPtr< StaticClassData<C, void> >(new StaticClassData<C, void>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
                 cd->staticData->baseClass = NULL;
@@ -950,7 +950,7 @@ public:
             ClassData<C>* cd = *ud;
 
             if (ClassType<C>::getStaticClassData().expired()) {
-                cd->staticData = SharedPtr<StaticClassData<C, B>>(new StaticClassData<C, B>);
+                cd->staticData = SharedPtr< StaticClassData<C, B> >(new StaticClassData<C, B>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
                 cd->staticData->baseClass = bd->staticData.get();
