@@ -256,7 +256,11 @@ public:
         sq_call(vm, 1, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -308,7 +312,11 @@ public:
         sq_call(vm, 2, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -363,7 +371,11 @@ public:
         sq_call(vm, 3, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -420,7 +432,11 @@ public:
         sq_call(vm, 4, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -480,7 +496,11 @@ public:
         sq_call(vm, 5, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -543,7 +563,11 @@ public:
         sq_call(vm, 6, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -610,7 +634,11 @@ public:
         sq_call(vm, 7, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -679,7 +707,11 @@ public:
         sq_call(vm, 8, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -751,7 +783,11 @@ public:
         sq_call(vm, 9, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -826,7 +862,11 @@ public:
         sq_call(vm, 10, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -904,7 +944,11 @@ public:
         sq_call(vm, 11, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -985,7 +1029,11 @@ public:
         sq_call(vm, 12, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -1069,7 +1117,11 @@ public:
         sq_call(vm, 13, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -1156,7 +1208,11 @@ public:
         sq_call(vm, 14, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }
@@ -1246,7 +1302,11 @@ public:
         sq_call(vm, 15, true, ErrorHandling::IsEnabled());
 #endif
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+        SharedPtr<R> ret = VarMove<SharedPtr<R> >(vm, -1).value;
+#else
         SharedPtr<R> ret = Var<SharedPtr<R> >(vm, -1).value;
+#endif
         sq_settop(vm, top);
         return ret;
     }

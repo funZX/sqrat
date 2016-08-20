@@ -138,6 +138,92 @@ struct popAsFloat
 
 /// @endcond
 
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get and push class instances to and from the stack as copies
+///
+/// \tparam T Type of instance (usually doesnt need to be defined explicitly)
+///
+/// \remarks
+/// This specialization requires T to have a default constructor.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+struct VarMove {
+
+    T value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as the given type
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    VarMove(HSQUIRRELVM vm, SQInteger idx) {
+        SQTRY()
+        T* ptr = ClassType<T>::GetInstance(vm, idx);
+        if (ptr != NULL) {
+            value = std::move(*ptr);
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        } else if (is_convertible<T, SQInteger>::YES) { /* value is likely of integral type like enums */
+            SQCLEAR(vm); // clear the previous error
+            value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+#endif
+        } else {
+            // initialize value to avoid warnings
+            value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+        }
+        SQCATCH(vm) {
+#if defined (SCRAT_USE_EXCEPTIONS)
+            SQUNUSED(e); // avoid "unreferenced local variable" warning
+#endif
+            if (is_convertible<T, SQInteger>::YES) { /* value is likely of integral type like enums */
+                value = popAsInt<T, is_convertible<T, SQInteger>::YES>(vm, idx).value;
+            } else {
+                SQRETHROW(vm);
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a class object on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const T& value) {
+        if (ClassType<T>::hasClassData(vm))
+            ClassType<T>::PushInstanceCopy(vm, value);
+        else /* try integral type */
+            pushAsInt<T, is_convertible<T, SQInteger>::YES>().push(vm, value);
+    }
+
+private:
+
+    template <class T2, bool b>
+    struct pushAsInt {
+        void push(HSQUIRRELVM vm, const T2& /*value*/) {
+            assert(false); // fails because called before a Sqrat::Class for T exists and T is not convertible to SQInteger
+            sq_pushnull(vm);
+        }
+    };
+
+    template <class T2>
+    struct pushAsInt<T2, true> {
+        void push(HSQUIRRELVM vm, const T2& value) {
+            sq_pushinteger(vm, static_cast<SQInteger>(value));
+        }
+    };
+};
+
+#endif // defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get and push class instances to and from the stack as copies
 ///
@@ -455,6 +541,54 @@ struct Var<const T* const> {
         ClassType<T>::PushInstance(vm, const_cast<T*>(value));
     }
 };
+
+#if defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get (as copies) and push (as references) class instances to and from the stack as a SharedPtr
+///
+/// \tparam T Type of instance (usually doesnt need to be defined explicitly)
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T> void PushVarR(HSQUIRRELVM vm, T& value);
+template<class T>
+struct VarMove<SharedPtr<T> > {
+
+    SharedPtr<T> value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as the given type
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    VarMove(HSQUIRRELVM vm, SQInteger idx) {
+        if (sq_gettype(vm, idx) != OT_NULL) {
+            VarMove<T> instance(vm, idx);
+            SQCATCH_NOEXCEPT(vm) {
+                return;
+            }
+            value = SharedPtr<T>(new T(instance.value));
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a class object on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const SharedPtr<T>& value) {
+        PushVarR(vm, *value);
+    }
+};
+
+#endif // defined(SCRAT_USE_CXX11_OPTIMIZATIONS)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get (as copies) and push (as references) class instances to and from the stack as a SharedPtr
