@@ -1003,6 +1003,109 @@ public:
 };
 #endif
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get and push std::vector<char> to and from the stack
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<>
+struct Var<std::vector<char>> {
+
+    std::vector<char> value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as a vector<char>
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx) {
+        value.clear();
+
+        SQInteger sz = sqstd_getblobsize(vm, idx);
+
+        if(sz > 0)
+        {
+            char *pData = nullptr;
+
+            if(SQ_SUCCEEDED(sqstd_getblob(vm, idx, reinterpret_cast<
+                SQUserPointer*>(&pData))) && nullptr != pData)
+            {
+                for(SQInteger i = 0; i < sz; ++i)
+                {
+                    value.push_back(pData[i]);
+                }
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a vector<char> on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const std::vector<char>& value) {
+        SQUserPointer pData = sqstd_createblob(vm, value.size());
+
+        if(nullptr != pData)
+        {
+            memcpy(pData, &value[0], value.size());
+        }
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get and push const std::vector<char> references to and from the stack
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<>
+struct Var<const std::vector<char>&> {
+
+    std::vector<char> value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as a vector<char>
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx) {
+        value.clear();
+
+        SQInteger sz = sqstd_getblobsize(vm, idx);
+
+        if(sz > 0)
+        {
+            char *pData = nullptr;
+
+            if(SQ_SUCCEEDED(sqstd_getblob(vm, idx, reinterpret_cast<
+                SQUserPointer*>(&pData))) && nullptr != pData)
+            {
+                for(SQInteger i = 0; i < sz; ++i)
+                {
+                    value.push_back(pData[i]);
+                }
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a vector<char> on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const std::vector<char>& value) {
+        SQUserPointer pData = sqstd_createblob(vm, value.size());
+
+        if(nullptr != pData)
+        {
+            memcpy(pData, &value[0], value.size());
+        }
+    }
+};
 
 // Non-referencable type definitions
 template<class T> struct is_referencable {static const bool value = true;};
