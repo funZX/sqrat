@@ -482,7 +482,7 @@ struct Var<SharedPtr<T> > {
             SQCATCH_NOEXCEPT(vm) {
                 return;
             }
-            value.Init(new T(instance.value));
+            value = SharedPtr<T>(new T(instance.value));
         }
     }
 
