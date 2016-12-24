@@ -38,6 +38,20 @@
 #include <string>
 #include <vector>
 
+#ifndef SQRAT_EXTRA_TYPES_INCLUDE
+#define SQRAT_EXTRA_TYPES_INCLUDE "sqratTypes.h"
+#endif // SQRAT_EXTRA_TYPES_INCLUDE
+
+#ifndef SQRAT_EXTRA_TYPES_SOURCE
+#define SQRAT_EXTRA_TYPES_SOURCE "sqratTypes.h"
+#endif // SQRAT_EXTRA_TYPES_SOURCE
+
+#ifndef SQRAT_EXTRA_TYPES_NONREF
+#define SQRAT_EXTRA_TYPES_NONREF "sqratTypes.h"
+#endif // SQRAT_EXTRA_TYPES_NONREF
+
+#include SQRAT_EXTRA_TYPES_INCLUDE
+
 #include "sqratClassType.h"
 #include "sqratUtil.h"
 
@@ -877,6 +891,8 @@ public:
     }
 };
 
+#include SQRAT_EXTRA_TYPES_SOURCE
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used to get and push strings to and from the stack (string is usually std::string)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1263,6 +1279,8 @@ SCRAT_MAKE_NONREFERENCABLE(float)
 SCRAT_MAKE_NONREFERENCABLE(double)
 SCRAT_MAKE_NONREFERENCABLE(bool)
 SCRAT_MAKE_NONREFERENCABLE(string)
+
+#include SQRAT_EXTRA_TYPES_NONREF
 
 #ifdef _MSC_VER
 #if defined(__int64)
