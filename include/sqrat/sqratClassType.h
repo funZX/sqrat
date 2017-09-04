@@ -31,6 +31,7 @@
 #include <squirrel.h>
 #include <typeinfo>
 
+#include "sqratObjectReference.h"
 #include "sqratUtil.h"
 
 namespace Sqrat
@@ -46,6 +47,7 @@ struct AbstractStaticClassData {
     AbstractStaticClassData() {}
     virtual ~AbstractStaticClassData() {}
     virtual SQUserPointer Cast(SQUserPointer ptr, SQUserPointer classType) = 0;
+    virtual void* GetPointer(ObjectReferenceBase *ref) const = 0;
     AbstractStaticClassData* baseClass;
     string                   className;
     COPYFUNC                 copyFunc;
@@ -60,6 +62,15 @@ struct StaticClassData : public AbstractStaticClassData {
         }
         return ptr;
     }
+
+    virtual void* GetPointer(ObjectReferenceBase *ref) const {
+        auto r = dynamic_cast<ObjectReference<C>*>(ref);
+        if(r) {
+            return r->GetPointer();
+        } else {
+            return NULL;
+        }
+    }
 };
 
 // Every Squirrel class object created by Sqrat in every VM has its own unique ClassData object stored in the registry table of the VM
@@ -68,7 +79,7 @@ struct ClassData {
     HSQOBJECT classObj;
     HSQOBJECT getTable;
     HSQOBJECT setTable;
-    SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> instances;
+    SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> instances;
     SharedPtr<AbstractStaticClassData> staticData;
 };
 
@@ -155,8 +166,10 @@ public:
 
     static SQInteger DeleteInstance(SQUserPointer ptr, SQInteger size) {
         SQUNUSED(size);
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
-        instance->second->erase(instance->first);
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >*>(ptr);
+        auto it = instance->second->find(instance->first);
+        delete it->second;
+        instance->second->erase(it);
         delete instance;
         return 0;
     }
@@ -169,18 +182,25 @@ public:
 
         ClassData<C>* cd = getClassData(vm);
 
-        typename unordered_map<C*, HSQOBJECT>::type::iterator it = cd->instances->find(ptr);
+        typename unordered_map<C*, ObjectReferenceBase*>::type::iterator it = cd->instances->find(ptr);
         if (it != cd->instances->end()) {
-            sq_pushobject(vm, it->second);
+            sq_pushobject(vm, it->second->GetSquirrelObject());
             return;
         }
 
         sq_pushobject(vm, cd->classObj);
         sq_createinstance(vm, -1);
         sq_remove(vm, -2);
-        sq_setinstanceup(vm, -1, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instances));
+        sq_setinstanceup(vm, -1, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instances));
+        auto objRef = (*cd->instances)[ptr];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>(false /* owner */);
+            ref->SetObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr] = objRef;
+        }
         sq_setreleasehook(vm, -1, &DeleteInstance);
-        sq_getstackobj(vm, -1, &((*cd->instances)[ptr]));
+        sq_getstackobj(vm, -1, objRef->GetSquirrelObjectPtr());
     }
 
     static void PushInstanceCopy(HSQUIRRELVM vm, const C& value) {
@@ -197,7 +217,7 @@ public:
 
     static C* GetInstance(HSQUIRRELVM vm, SQInteger idx, bool nullAllowed = false) {
         AbstractStaticClassData* classType = NULL;
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = NULL;
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = NULL;
         if (hasClassData(vm)) /* type checking only done if the value has type data else it may be enum */
         {
             if (nullAllowed && sq_gettype(vm, idx) == OT_NULL) {
@@ -236,10 +256,20 @@ public:
             }
             sq_settop(vm, top);
         }
-        if (classType != actualType) {
-            return static_cast<C*>(actualType->Cast(instance->first, classType));
+        auto objRefIt = instance->second->find(instance->first);
+        if(objRefIt == instance->second->end()) {
+            SQTHROW(vm, _SC("object reference was not found!"));
+            return NULL;
         }
-        return static_cast<C*>(instance->first);
+        C* obj = reinterpret_cast<C*>(actualType->GetPointer(objRefIt->second));
+        if(!obj) {
+            SQTHROW(vm, _SC("object has the wrong type!"));
+            return NULL;
+        }
+        if (classType != actualType) {
+            return static_cast<C*>(actualType->Cast(obj, classType));
+        }
+        return static_cast<C*>(obj);
     }
 };
 

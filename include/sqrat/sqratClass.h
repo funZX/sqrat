@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "sqratObject.h"
+#include "sqratObjectReference.h"
 #include "sqratClassType.h"
 #include "sqratMemberMethods.h"
 #include "sqratAllocator.h"
@@ -578,7 +579,7 @@ protected:
 
     // Initialize the required data structure for the class
     void InitClass(ClassData<C>* cd) {
-        cd->instances = SharedPtr<typename unordered_map<C*, HSQOBJECT>::type>(new typename unordered_map<C*, HSQOBJECT>::type);
+        cd->instances = SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type>(new typename unordered_map<C*, ObjectReferenceBase*>::type);
 
         // push the class
         sq_pushobject(vm, cd->classObj);
@@ -977,7 +978,7 @@ protected:
 /// @cond DEV
 
     void InitDerivedClass(HSQUIRRELVM vm, ClassData<C>* cd, ClassData<B>* bd) {
-        cd->instances = SharedPtr<typename unordered_map<C*, HSQOBJECT>::type>(new typename unordered_map<C*, HSQOBJECT>::type);
+        cd->instances = SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type>(new typename unordered_map<C*, ObjectReferenceBase*>::type);
 
         // push the class
         sq_pushobject(vm, cd->classObj);

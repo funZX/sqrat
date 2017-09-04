@@ -394,7 +394,13 @@ struct Var<const T&> {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void push(HSQUIRRELVM vm, const T& value) {
+#if 0
+        union { const T *a; T *b; } ptr;
+        ptr.a = &value;
+        ClassType<T>::PushInstance(vm, ptr.b);
+#else
         ClassType<T>::PushInstanceCopy(vm, value);
+#endif
     }
 };
 

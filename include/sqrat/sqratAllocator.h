@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include "sqratObject.h"
+#include "sqratObjectReference.h"
 #include "sqratTypes.h"
 
 namespace Sqrat {
@@ -105,9 +106,16 @@ public:
     static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
     {
         ClassData<C>* cd = ClassType<C>::getClassData(vm);
-        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instances));
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instances));
+        auto objRef = (*cd->instances)[ptr];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>();
+            ref->SetObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr] = objRef;
+        }
         sq_setreleasehook(vm, idx, &Delete);
-        sq_getstackobj(vm, idx, &((*cd->instances)[ptr]));
+        sq_getstackobj(vm, idx, objRef->GetSquirrelObjectPtr());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -368,9 +376,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static SQInteger Delete(SQUserPointer ptr, SQInteger size) {
         SQUNUSED(size);
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
-        instance->second->erase(instance->first);
-        delete instance->first;
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >*>(ptr);
+        auto it = instance->second->find(instance->first);
+        delete it->second;
+        instance->second->erase(it);
         delete instance;
         return 0;
     }
@@ -400,9 +409,16 @@ public:
     static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
     {
         ClassData<C>* cd = ClassType<C>::getClassData(vm);
-        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instance));
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instance));
+        auto objRef = (*cd->instances)[ptr];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>();
+            ref->SetObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr] = objRef;
+        }
         sq_setreleasehook(vm, idx, &Delete);
-        sq_getstackobj(vm, idx, &((*cd->instances)[ptr]));
+        sq_getstackobj(vm, idx, objRef->GetSquirrelObjectPtr());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -450,9 +466,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static SQInteger Delete(SQUserPointer ptr, SQInteger size) {
         SQUNUSED(size);
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
-        instance->second->erase(instance->first);
-        delete instance->first;
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >*>(ptr);
+        auto it = instance->second->find(instance->first);
+        delete it->second;
+        instance->second->erase(it);
         delete instance;
         return 0;
     }
@@ -482,9 +499,16 @@ public:
     static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
     {
         ClassData<C>* cd = ClassType<C>::getClassData(vm);
-        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instances));
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instances));
+        auto objRef = (*cd->instances)[ptr];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>();
+            ref->SetObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr] = objRef;
+        }
         sq_setreleasehook(vm, idx, &Delete);
-        sq_getstackobj(vm, idx, &((*cd->instances)[ptr]));
+        sq_getstackobj(vm, idx, objRef->GetSquirrelObjectPtr());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -530,9 +554,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static SQInteger Delete(SQUserPointer ptr, SQInteger size) {
         SQUNUSED(size);
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
-        instance->second->erase(instance->first);
-        delete instance->first;
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >*>(ptr);
+        auto it = instance->second->find(instance->first);
+        delete it->second;
+        instance->second->erase(it);
         delete instance;
         return 0;
     }
@@ -587,9 +612,16 @@ public:
     static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
     {
         ClassData<C>* cd = ClassType<C>::getClassData(vm);
-        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >(ptr, cd->instances));
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instances));
+        auto objRef = (*cd->instances)[ptr];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>();
+            ref->SetObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr] = objRef;
+        }
         sq_setreleasehook(vm, idx, &Delete);
-        sq_getstackobj(vm, idx, &((*cd->instances)[ptr]));
+        sq_getstackobj(vm, idx, objRef->GetSquirrelObjectPtr());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -850,9 +882,10 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static SQInteger Delete(SQUserPointer ptr, SQInteger size) {
         SQUNUSED(size);
-        std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, HSQOBJECT>::type> >*>(ptr);
-        instance->second->erase(instance->first);
-        delete instance->first;
+        std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = reinterpret_cast<std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >*>(ptr);
+        auto it = instance->second->find(instance->first);
+        delete it->second;
+        instance->second->erase(it);
         delete instance;
         return 0;
     }
