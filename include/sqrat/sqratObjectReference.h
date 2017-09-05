@@ -115,14 +115,14 @@ public:
         object = nullptr;
     }
 
-    T* GetSharedObject() const {
+    std::shared_ptr<T> GetSharedObject() const {
         return sharedObject;
     }
 
     std::shared_ptr<T> Promote() {
         if(!IsShared() && IsOwner())
         {
-            sharedObject = std::make_shared<T>(object);
+            sharedObject = std::shared_ptr<T>(object);
             object = nullptr;
         }
 

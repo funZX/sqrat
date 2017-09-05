@@ -203,6 +203,35 @@ public:
         sq_getstackobj(vm, -1, objRef->GetSquirrelObjectPtr());
     }
 
+    static void PushSharedInstance(HSQUIRRELVM vm, const SharedPtr<C>& ptr) {
+        if (nullptr == ptr.get()) {
+            sq_pushnull(vm);
+            return;
+        }
+
+        ClassData<C>* cd = getClassData(vm);
+
+        typename unordered_map<C*, ObjectReferenceBase*>::type::iterator it = cd->instances->find(ptr.get());
+        if (it != cd->instances->end()) {
+            sq_pushobject(vm, it->second->GetSquirrelObject());
+            return;
+        }
+
+        sq_pushobject(vm, cd->classObj);
+        sq_createinstance(vm, -1);
+        sq_remove(vm, -2);
+        sq_setinstanceup(vm, -1, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr.get(), cd->instances));
+        auto objRef = (*cd->instances)[ptr.get()];
+        if(!objRef) {
+            auto ref = new ObjectReference<C>(false /* owner */);
+            ref->SetSharedObject(ptr);
+            objRef = ref;
+            (*cd->instances)[ptr.get()] = objRef;
+        }
+        sq_setreleasehook(vm, -1, &DeleteInstance);
+        sq_getstackobj(vm, -1, objRef->GetSquirrelObjectPtr());
+    }
+
     static void PushInstanceCopy(HSQUIRRELVM vm, const C& value) {
         sq_pushobject(vm, getClassData(vm)->classObj);
         sq_createinstance(vm, -1);
@@ -215,7 +244,7 @@ public:
 #endif
     }
 
-    static C* GetInstance(HSQUIRRELVM vm, SQInteger idx, bool nullAllowed = false) {
+    static C* GetInstance(HSQUIRRELVM vm, SQInteger idx, bool nullAllowed = false, ObjectReference<C> **outRef = NULL) {
         AbstractStaticClassData* classType = NULL;
         std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >* instance = NULL;
         if (hasClassData(vm)) /* type checking only done if the value has type data else it may be enum */
@@ -265,6 +294,9 @@ public:
         if(!obj) {
             SQTHROW(vm, _SC("object has the wrong type!"));
             return NULL;
+        }
+        if(NULL != outRef) {
+            *outRef = dynamic_cast<ObjectReference<C>*>(objRefIt->second);
         }
         if (classType != actualType) {
             return static_cast<C*>(actualType->Cast(obj, classType));

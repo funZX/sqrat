@@ -25,6 +25,7 @@ SET(SQRAT_TESTS
     NullPointerReturn
     RunStackHandling
     ScriptLoading
+    SharedObject
     SquirrelFunctions
     SuspendVM
     TableBinding

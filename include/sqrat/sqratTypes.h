@@ -516,9 +516,58 @@ struct Var<SharedPtr<T> > {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void push(HSQUIRRELVM vm, const SharedPtr<T>& value) {
-        PushVarR(vm, *value);
+        if (ClassType<T>::hasClassData(vm)) {
+            ClassType<T>::PushSharedInstance(vm, value);
+        } else {
+            PushVarR(vm, *value);
+        }
     }
 };
+
+template<class T>
+struct Var<SharedPtr<ObjectReference<T> > > {
+
+    SharedPtr<ObjectReference<T> > value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as the given type
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx) {
+        if (sq_gettype(vm, idx) != OT_NULL) {
+            ObjectReference<T> *ref = NULL;
+            T* ptr = ClassType<T>::GetInstance(vm, idx, false, &ref);
+            SQCATCH_NOEXCEPT(vm) {
+                return;
+            }
+
+            if(ref) {
+                value = std::make_shared<ObjectReference<T> >();
+                value->SetSharedObject(ref->Promote());
+            } else {
+                value = SharedPtr<ObjectReference<T> >();
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a class object on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const SharedPtr<ObjectReference<T> >& value) {
+        SQTHROW(vm, _SC("do not pass in an object reference"));
+    }
+};
+
 
 // Integer types
 #define SCRAT_INTEGER( type ) \
