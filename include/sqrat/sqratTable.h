@@ -34,6 +34,7 @@
 #include "sqratObject.h"
 #include "sqratFunction.h"
 #include "sqratGlobalMethods.h"
+#include "sqratGlobalVMethods.h"
 
 namespace Sqrat {
 
@@ -189,6 +190,23 @@ public:
     template<class F>
     TableBase& Func(const SQChar* name, F method) {
         BindFunc(name, &method, sizeof(method), SqGlobalFunc(method));
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Sets a key in the Table to a specific function
+    ///
+    /// \param name   The key in the table being assigned a value
+    /// \param method Function that is being placed in the Table
+    ///
+    /// \tparam F Type of function (only define this if you need to choose a certain template specialization or overload)
+    ///
+    /// \return The Table itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class F>
+    TableBase& VMFunc(const SQChar* name, F method) {
+        BindFunc(name, &method, sizeof(method), SqGlobalVMFunc(method));
         return *this;
     }
 
