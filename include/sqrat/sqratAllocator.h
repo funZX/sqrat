@@ -409,7 +409,7 @@ public:
     static void SetInstance(HSQUIRRELVM vm, SQInteger idx, C* ptr)
     {
         ClassData<C>* cd = ClassType<C>::getClassData(vm);
-        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instance));
+        sq_setinstanceup(vm, idx, new std::pair<C*, SharedPtr<typename unordered_map<C*, ObjectReferenceBase*>::type> >(ptr, cd->instances));
         auto objRef = (*cd->instances)[ptr];
         if(!objRef) {
             auto ref = new ObjectReference<C>();

@@ -296,7 +296,7 @@ public:
             return NULL;
         }
         if(NULL != outRef) {
-            *outRef = dynamic_cast<ObjectReference<C>*>(objRefIt->second);
+            *outRef = reinterpret_cast<ObjectReference<C>*>(objRefIt->second);
         }
         if (classType != actualType) {
             return static_cast<C*>(actualType->Cast(obj, classType));

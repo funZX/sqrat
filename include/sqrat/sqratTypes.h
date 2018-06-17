@@ -524,6 +524,112 @@ struct Var<SharedPtr<T> > {
     }
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get (as copies) and push (as references) class instances to and from the stack as a SharedPtr
+///
+/// \tparam T Type of instance (usually doesnt need to be defined explicitly)
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+struct Var<SharedPtr<T>&> {
+
+    SharedPtr<T> value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as the given type
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx) {
+        if (sq_gettype(vm, idx) != OT_NULL) {
+            ObjectReference<T> *ref = NULL;
+            T* ptr = ClassType<T>::GetInstance(vm, idx, false, &ref);
+            SQCATCH_NOEXCEPT(vm) {
+                return;
+            }
+
+            if(ref) {
+                value = ref->Promote();
+            } else {
+                value = SharedPtr<T>();
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a class object on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const SharedPtr<T>& value) {
+        if (ClassType<T>::hasClassData(vm)) {
+            ClassType<T>::PushSharedInstance(vm, value);
+        } else {
+            PushVarR(vm, *value);
+        }
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Used to get (as copies) and push (as references) class instances to and from the stack as a SharedPtr
+///
+/// \tparam T Type of instance (usually doesnt need to be defined explicitly)
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T>
+struct Var<const SharedPtr<T>&> {
+
+    SharedPtr<T> value; ///< The actual value of get operations
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Attempts to get the value off the stack at idx as the given type
+    ///
+    /// \param vm  Target VM
+    /// \param idx Index trying to be read
+    ///
+    /// \remarks
+    /// This function MUST have its Error handled if it occurred.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Var(HSQUIRRELVM vm, SQInteger idx) {
+        if (sq_gettype(vm, idx) != OT_NULL) {
+            ObjectReference<T> *ref = NULL;
+            T* ptr = ClassType<T>::GetInstance(vm, idx, false, &ref);
+            SQCATCH_NOEXCEPT(vm) {
+                return;
+            }
+
+            if(ref) {
+                value = ref->Promote();
+            } else {
+                value = SharedPtr<T>();
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Called by Sqrat::PushVar to put a class object on the stack
+    ///
+    /// \param vm    Target VM
+    /// \param value Value to push on to the VM's stack
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static void push(HSQUIRRELVM vm, const SharedPtr<T>& value) {
+        if (ClassType<T>::hasClassData(vm)) {
+            ClassType<T>::PushSharedInstance(vm, value);
+        } else {
+            PushVarR(vm, *value);
+        }
+    }
+};
+
 template<class T>
 struct Var<SharedPtr<ObjectReference<T> > > {
 
