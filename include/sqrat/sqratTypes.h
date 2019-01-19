@@ -701,19 +701,26 @@ struct Var<SharedPtr<ObjectReference<T> > > {
 
 SCRAT_INTEGER(unsigned int)
 SCRAT_INTEGER(signed int)
+#ifndef SQRAT_OMIT_INT64
 SCRAT_INTEGER(unsigned long)
 SCRAT_INTEGER(signed long)
+#endif // SQRAT_OMIT_INT64
 SCRAT_INTEGER(unsigned short)
 SCRAT_INTEGER(signed short)
 SCRAT_INTEGER(unsigned char)
 SCRAT_INTEGER(signed char)
+
+#ifndef SQRAT_OMIT_INT64
 SCRAT_INTEGER(unsigned long long)
 SCRAT_INTEGER(signed long long)
+#endif // SQRAT_OMIT_INT64
 
 #ifdef _MSC_VER
 #if defined(__int64)
+#ifndef SQRAT_OMIT_INT64
 SCRAT_INTEGER(unsigned __int64)
 SCRAT_INTEGER(signed __int64)
+#endif // SQRAT_OMIT_INT64
 #endif
 #endif
 
@@ -1294,14 +1301,18 @@ template<class T> struct is_referencable {static const bool value = true;};
 
 SCRAT_MAKE_NONREFERENCABLE(unsigned int)
 SCRAT_MAKE_NONREFERENCABLE(signed int)
+#ifndef SQRAT_OMIT_INT64
 SCRAT_MAKE_NONREFERENCABLE(unsigned long)
 SCRAT_MAKE_NONREFERENCABLE(signed long)
+#endif // SQRAT_OMIT_INT64
 SCRAT_MAKE_NONREFERENCABLE(unsigned short)
 SCRAT_MAKE_NONREFERENCABLE(signed short)
 SCRAT_MAKE_NONREFERENCABLE(unsigned char)
 SCRAT_MAKE_NONREFERENCABLE(signed char)
+#ifndef SQRAT_OMIT_INT64
 SCRAT_MAKE_NONREFERENCABLE(unsigned long long)
 SCRAT_MAKE_NONREFERENCABLE(signed long long)
+#endif // SQRAT_OMIT_INT64
 SCRAT_MAKE_NONREFERENCABLE(float)
 SCRAT_MAKE_NONREFERENCABLE(double)
 SCRAT_MAKE_NONREFERENCABLE(bool)
@@ -1311,8 +1322,10 @@ SCRAT_MAKE_NONREFERENCABLE(string)
 
 #ifdef _MSC_VER
 #if defined(__int64)
+#ifndef SQRAT_OMIT_INT64
 SCRAT_MAKE_NONREFERENCABLE(unsigned __int64)
 SCRAT_MAKE_NONREFERENCABLE(signed __int64)
+#endif // SQRAT_OMIT_INT64
 #endif
 #endif
 
