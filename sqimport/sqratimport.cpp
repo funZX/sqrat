@@ -290,9 +290,7 @@ static SQInteger sqratbase_import(HSQUIRRELVM v) {
         break;
     }
 
-    sqrat_import(v);
-
-    return 1;
+    return sqrat_import(v);
 }
 
 SQRESULT sqrat_register_importlib(HSQUIRRELVM v) {
