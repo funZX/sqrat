@@ -260,19 +260,11 @@ SQRESULT sqrat_import(HSQUIRRELVM v) {
 
     sq_getstring(v, -2, &moduleName);
     sq_getstackobj(v, -1, &table);
-    sq_addref(v, &table);
-
-    sq_settop(v, 0); // Clear Stack
-    sq_pushobject(v, table); // Push the target table onto the stack
 
     if(SQ_FAILED(sqrat_importscript(v, moduleName))) {
         res = sqrat_importbin(v, moduleName);
     }
 
-    sq_settop(v, 0); // Clean up the stack (just in case the module load leaves it messy)
-    sq_pushobject(v, table); // return the target table
-    sq_release(v, &table);
-    
     return res;
 }
 
