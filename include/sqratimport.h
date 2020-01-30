@@ -44,6 +44,8 @@ extern "C" {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     SQUIRREL_API SQRESULT sqrat_register_importlib(HSQUIRRELVM v);
 
+
+    extern SQChar* sqrat_importlib_library_path;
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

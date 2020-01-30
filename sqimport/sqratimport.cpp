@@ -45,6 +45,7 @@
 typedef SQRESULT (*SQMODULELOAD)(HSQUIRRELVM v, HSQAPI sq);
 
 static HSQAPI sqapi = NULL;
+SQChar* sqrat_importlib_library_path = 0;
 
 // Create and populate the HSQAPI structure with function pointers
 // If new functions are added to the Squirrel API, they should be added here too
@@ -193,10 +194,14 @@ static HSQAPI sqrat_newapi() {
 
 
 static SQRESULT sqrat_importscript(HSQUIRRELVM v, const SQChar* moduleName) {
+    std::basic_string<SQChar> lib_file_name(sqrat_importlib_library_path);
     std::basic_string<SQChar> filename(moduleName);
+
     filename += _SC(".nut");
-    if(SQ_FAILED(sqstd_loadfile(v, moduleName, true))) {
-        if(SQ_FAILED(sqstd_loadfile(v, filename.c_str(), true))) {
+    lib_file_name += filename;
+
+    if(SQ_FAILED(sqstd_loadfile(v, filename.c_str(), true))) {
+        if(SQ_FAILED(sqstd_loadfile(v, lib_file_name.c_str(), true))) {
             return SQ_ERROR;
         }
     }
